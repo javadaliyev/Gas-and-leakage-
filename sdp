@@ -1,0 +1,47 @@
+// Pin assignments for the LED and buzzer
+int redLed = 12;      // Pin connected to the red LED
+int greenLed = 11;    // Pin connected to the green LED
+int buzzer = 10;      // Pin connected to the buzzer
+int smokeA0 = A5;     // Pin A5 is used for reading the smoke sensor value (analog input)
+
+// Threshold value for smoke detection
+int sensorThres = 210; // Value that the sensor's analog reading needs to exceed for triggering the alarm
+
+void setup() {
+  // Set up the LED and buzzer pins as outputs
+  pinMode(redLed, OUTPUT);    // Red LED will be used for smoke detection warning
+  pinMode(greenLed, OUTPUT);  // Green LED will be used to indicate normal state
+  pinMode(buzzer, OUTPUT);    // Buzzer will sound when smoke is detected
+  pinMode(smokeA0, INPUT);    // Smoke sensor pin is set as input
+
+  // Initialize the serial communication at a baud rate of 9600 for debugging
+  Serial.begin(9600); 
+}
+
+void loop() {
+  // Read the value from the smoke sensor
+  int analogSensor = analogRead(smokeA0); // This reads the analog value from pin A5 (smoke sensor)
+
+  // Print the value of the smoke sensor to the serial monitor
+  Serial.print("Pin A0: ");
+  Serial.println(analogSensor);
+
+  // Check if the analog sensor value exceeds the threshold for smoke detection
+  if (analogSensor > sensorThres) {
+    // If smoke is detected (sensor value is above threshold):
+    // Turn on the red LED, turn off the green LED, and sound the buzzer
+    digitalWrite(redLed, HIGH);  // Red LED turns on to indicate danger
+    digitalWrite(greenLed, LOW); // Green LED turns off (no longer safe)
+    digitalWrite(buzzer, HIGH);  // Buzzer sounds to alert
+  }
+  else {
+    // If smoke is not detected (sensor value is below threshold):
+    // Turn on the green LED, turn off the red LED, and silence the buzzer
+    digitalWrite(redLed, LOW);   // Red LED turns off (no danger)
+    digitalWrite(greenLed, HIGH); // Green LED turns on to indicate safe state
+    digitalWrite(buzzer, LOW);    // Buzzer stops sounding
+  }
+  
+  // Wait for 100 milliseconds before checking the sensor again (debounce or sampling rate)
+  delay(100); 
+}
